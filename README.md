@@ -189,44 +189,6 @@ curl -X POST http://localhost:8000/api/chat/ask \
 
 ---
 
-## 📝 Changelog
-
-### README — What Was Updated
-
-| What | Before | After |
-|------|--------|-------|
-| Badges | None | Python / FastAPI / LangChain / ChromaDB / MIT |
-| Features | Bullet list | Table with Feature + Description |
-| Tech Stack | 2 columns | 3 columns — added Role |
-| Project structure | File tree only | File tree + inline comment per file |
-| How RAG Works | Not present | New section with ASCII pipeline diagram |
-| Getting Started | Mixed steps | 4 clearly numbered steps |
-| .env setup | One-liner | Code block + link to get the API key |
-| Swagger link | Not mentioned | Added after run command |
-| API section | Tables only | Tables + copy-paste curl examples |
-| Contributing | Not present | Fork / branch / commit / PR workflow |
-| Footer | Not present | Author GitHub attribution |
-
----
-
-## 🧪 Tests
-
-```bash
-python -m pytest tests/ -v
-```
-
-All tests are fully mocked — no API key or running server needed.
-
----
-
-## 🤝 Contributing
-
-1. Fork the repo
-2. Create a branch: `git checkout -b feat/your-feature`
-3. Commit: `git commit -m "feat: your feature"`
-4. Push and open a Pull Request
-
----
 
 ## 📄 License
 
