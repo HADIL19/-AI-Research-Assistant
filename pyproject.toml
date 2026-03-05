@@ -2,7 +2,7 @@
 name = "research-ai"
 version = "0.1.0"
 description = "AI Research Assistant — summarize papers, Q&A, find sources"
-authors = ["YounesBensafia"]
+authors = ["KHELIF HADIL"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
