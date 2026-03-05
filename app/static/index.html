@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ResearchAI</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:wght@700&display=swap');
+
+  :root {
+    --bg: #f8f7f4;
+    --surface: #ffffff;
+    --border: #e5e2db;
+    --accent: #2563eb;
+    --accent-light: #eff6ff;
+    --text: #1a1a1a;
+    --muted: #6b7280;
+    --green: #16a34a;
+    --red: #dc2626;
+    --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-md: 0 4px 6px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.05);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    grid-template-rows: 60px 1fr;
+  }
+
+  /* HEADER */
+  header {
+    grid-column: 1 / -1;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    padding: 0 1.5rem;
+    gap: 1rem;
+    box-shadow: var(--shadow);
+  }
+
+  .logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--accent);
+  }
+
+  .logo span { color: var(--text); }
+
+  .header-stats {
+    margin-left: auto;
+    font-size: 0.78rem;
+    color: var(--muted);
+    display: flex;
+    gap: 1.5rem;
+  }
+
+  .stat { display: flex; align-items: center; gap: 0.4rem; }
+  .stat-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); }
+
+  /* SIDEBAR */
+  aside {
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .sidebar-section {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .sidebar-title {
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    margin-bottom: 0.75rem;
+  }
+
+  /* Ingest tabs */
+  .tabs {
+    display: flex;
+    gap: 0.25rem;
+    margin-bottom: 0.75rem;
+    background: var(--bg);
+    border-radius: 8px;
+    padding: 3px;
+  }
+
+  .tab {
+    flex: 1;
+    padding: 0.35rem 0;
+    font-size: 0.72rem;
+    font-weight: 500;
+    border: none;
+    background: transparent;
+    border-radius: 6px;
+    cursor: pointer;
+    color: var(--muted);
+    transition: all 0.15s;
+  }
+
+  .tab.active { background: var(--surface); color: var(--accent); box-shadow: var(--shadow); }
+
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  input[type=text], textarea {
+    width: 100%;
+    padding: 0.55rem 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.82rem;
+    background: var(--bg);
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.15s;
+    margin-bottom: 0.5rem;
+  }
+
+  input:focus, textarea:focus { border-color: var(--accent); background: white; }
+  textarea { resize: none; }
+
+  .drop-zone {
+    border: 2px dashed var(--border);
+    border-radius: 8px;
+    padding: 1.25rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.15s;
+    margin-bottom: 0.5rem;
+    background: var(--bg);
+  }
+
+  .drop-zone:hover, .drop-zone.drag-over { border-color: var(--accent); background: var(--accent-light); }
+  .drop-zone p { font-size: 0.8rem; color: var(--muted); }
+  .drop-zone strong { color: var(--accent); }
+  #fileInput { display: none; }
+
+  .btn {
+    width: 100%;
+    padding: 0.55rem;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+    font-size: 0.82rem;
+    cursor: pointer;
+    transition: opacity 0.15s;
+  }
+  .btn:hover { opacity: 0.88; }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-ghost {
+    background: transparent;
+    color: var(--accent);
+    border: 1px solid var(--border);
+  }
+  .btn-ghost:hover { background: var(--accent-light); opacity: 1; }
+
+  /* Paper list */
+  .paper-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0.75rem;
+  }
+
+  .paper-item {
+    padding: 0.65rem 0.75rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.1s;
+    border: 1px solid transparent;
+    margin-bottom: 0.35rem;
+  }
+
+  .paper-item:hover { background: var(--bg); }
+  .paper-item.selected { background: var(--accent-light); border-color: #bfdbfe; }
+
+  .paper-name {
+    font-size: 0.82rem;
+    font-weight: 500;
+    margin-bottom: 0.2rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .paper-meta {
+    font-size: 0.7rem;
+    color: var(--muted);
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .badge {
+    font-size: 0.65rem;
+    padding: 0.1rem 0.4rem;
+    border-radius: 4px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-weight: 500;
+  }
+
+  .badge.pdf { background: #fef2f2; color: var(--red); border-color: #fecaca; }
+  .badge.arxiv { background: #f0fdf4; color: var(--green); border-color: #bbf7d0; }
+  .badge.doi { background: #fffbeb; color: #d97706; border-color: #fde68a; }
+
+  /* MAIN */
+  main {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* Toolbar */
+  .toolbar {
+    padding: 0.75rem 1.5rem;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+  }
+
+  .action-btn {
+    padding: 0.45rem 1rem;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+    color: var(--text);
+  }
+
+  .action-btn:hover { background: var(--accent-light); border-color: #bfdbfe; color: var(--accent); }
+  .action-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
+  .action-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+  .selected-paper-label {
+    margin-left: auto;
+    font-size: 0.78rem;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  /* Content area */
+  .content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .result-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.25rem 1.5rem;
+    box-shadow: var(--shadow);
+  }
+
+  .result-card h3 {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .result-body {
+    font-size: 0.88rem;
+    line-height: 1.75;
+    white-space: pre-wrap;
+    color: var(--text);
+  }
+
+  .result-body strong { font-weight: 600; }
+
+  .sources-list {
+    margin-top: 1rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--border);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+
+  .source-tag {
+    font-size: 0.7rem;
+    padding: 0.2rem 0.6rem;
+    background: var(--accent-light);
+    color: var(--accent);
+    border-radius: 4px;
+    border: 1px solid #bfdbfe;
+  }
+
+  /* Chat */
+  .chat-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    overflow-y: auto;
+  }
+
+  .message {
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+  }
+
+  .message.user { flex-direction: row-reverse; }
+
+  .avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+
+  .avatar.ai { background: var(--accent-light); color: var(--accent); }
+  .avatar.user { background: var(--accent); color: white; }
+
+  .bubble {
+    max-width: 75%;
+    padding: 0.75rem 1rem;
+    border-radius: 12px;
+    font-size: 0.875rem;
+    line-height: 1.65;
+  }
+
+  .message.ai .bubble { background: var(--surface); border: 1px solid var(--border); }
+  .message.user .bubble { background: var(--accent); color: white; }
+
+  /* Chat input */
+  .chat-input-bar {
+    padding: 1rem 1.5rem;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-end;
+  }
+
+  .chat-input-bar textarea {
+    flex: 1;
+    margin: 0;
+    max-height: 120px;
+  }
+
+  .send-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: var(--accent);
+    border: none;
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: opacity 0.15s;
+  }
+  .send-btn:hover { opacity: 0.85; }
+
+  /* States */
+  .empty-state {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    color: var(--muted);
+    text-align: center;
+    padding: 3rem;
+  }
+
+  .empty-icon { font-size: 3rem; opacity: 0.4; }
+  .empty-state p { font-size: 0.9rem; max-width: 300px; line-height: 1.6; }
+
+  .spinner {
+    width: 18px; height: 18px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+    display: inline-block;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .toast {
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    background: var(--text);
+    color: white;
+    padding: 0.65rem 1.1rem;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    box-shadow: var(--shadow-md);
+    animation: slideUp 0.2s ease;
+    z-index: 1000;
+  }
+
+  .toast.success { background: var(--green); }
+  .toast.error { background: var(--red); }
+  @keyframes slideUp { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:none; } }
+
+  /* View modes */
+  #view-analyze, #view-chat { display: none; }
+  #view-analyze.active, #view-chat.active { display: flex; flex-direction: column; flex: 1; overflow: hidden; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">Research<span>AI</span></div>
+  <div class="header-stats">
+    <div class="stat"><div class="stat-dot"></div><span id="paperCount">0 papers</span></div>
+    <div class="stat"><span id="chunkCount">0 chunks</span></div>
+  </div>
+</header>
+
+<!-- SIDEBAR -->
+<aside>
+  <div class="sidebar-section">
+    <div class="sidebar-title">Add Paper</div>
+
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('pdf')">PDF</button>
+      <button class="tab" onclick="switchTab('arxiv')">ArXiv</button>
+      <button class="tab" onclick="switchTab('doi')">DOI</button>
+      <button class="tab" onclick="switchTab('text')">Text</button>
+    </div>
+
+    <!-- PDF -->
+    <div class="tab-panel active" id="tab-pdf">
+      <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
+        <p>📄 <strong>Click or drag</strong> a PDF here</p>
+      </div>
+      <input type="file" id="fileInput" accept=".pdf">
+      <button class="btn" onclick="uploadPDF()" id="uploadBtn">Upload PDF</button>
+    </div>
+
+    <!-- ArXiv -->
+    <div class="tab-panel" id="tab-arxiv">
+      <input type="text" id="arxivInput" placeholder="e.g. 2401.12345 or full URL">
+      <button class="btn" onclick="ingestArxiv()">Fetch from ArXiv</button>
+    </div>
+
+    <!-- DOI -->
+    <div class="tab-panel" id="tab-doi">
+      <input type="text" id="doiInput" placeholder="e.g. 10.1145/3411764.3445518">
+      <button class="btn" onclick="ingestDoi()">Fetch from DOI</button>
+    </div>
+
+    <!-- Text -->
+    <div class="tab-panel" id="tab-text">
+      <input type="text" id="textTitle" placeholder="Paper title">
+      <input type="text" id="textAuthors" placeholder="Authors (optional)">
+      <textarea id="textBody" rows="4" placeholder="Paste abstract or full text..."></textarea>
+      <button class="btn" onclick="ingestText()">Add Text</button>
+    </div>
+  </div>
+
+  <div class="sidebar-section" style="padding-bottom:0.5rem">
+    <div class="sidebar-title">Library <span id="libraryCount" style="font-weight:400;text-transform:none">(0)</span></div>
+  </div>
+
+  <div class="paper-list" id="paperList">
+    <div style="text-align:center;color:var(--muted);font-size:0.8rem;padding:1rem">
+      No papers yet
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main>
+  <div class="toolbar">
+    <button class="action-btn active" id="btn-analyze" onclick="setMode('analyze')" disabled>📊 Analyze</button>
+    <button class="action-btn" id="btn-chat" onclick="setMode('chat')" disabled>💬 Ask</button>
+    <button class="action-btn" id="btn-contributions" onclick="runFeature('contributions')" disabled>🔬 Contributions</button>
+    <button class="action-btn" id="btn-related" onclick="runFeature('related')" disabled>🔗 Related</button>
+    <div class="selected-paper-label">
+      <span id="selectedLabel">Select a paper →</span>
+    </div>
+  </div>
+
+  <!-- Analyze view -->
+  <div id="view-analyze" class="active">
+    <div class="content" id="analyzeContent">
+      <div class="empty-state">
+        <div class="empty-icon">📚</div>
+        <p>Upload a paper and select it to start analyzing</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chat view -->
+  <div id="view-chat">
+    <div class="content chat-area" id="chatMessages">
+      <div class="empty-state">
+        <div class="empty-icon">💬</div>
+        <p>Ask anything about your papers. Select a specific paper or ask across your entire library.</p>
+      </div>
+    </div>
+    <div class="chat-input-bar">
+      <textarea id="chatInput" rows="1" placeholder="Ask a question about the paper..." onkeydown="handleKey(event)"></textarea>
+      <button class="send-btn" onclick="sendQuestion()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      </button>
+    </div>
+  </div>
+</main>
+
+<script>
+const API = '';
+let selectedPaper = null;
+let currentMode = 'analyze';
+
+// ── Toast ──────────────────────────────────────────────────────────────────────
+function toast(msg, type='') {
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  el.textContent = msg;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 3000);
+}
+
+// ── Tabs ───────────────────────────────────────────────────────────────────────
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', ['pdf','arxiv','doi','text'][i]===name));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+}
+
+// ── Mode ───────────────────────────────────────────────────────────────────────
+function setMode(mode) {
+  currentMode = mode;
+  document.getElementById('view-analyze').classList.toggle('active', mode==='analyze');
+  document.getElementById('view-chat').classList.toggle('active', mode==='chat');
+  document.getElementById('btn-analyze').classList.toggle('active', mode==='analyze');
+  document.getElementById('btn-chat').classList.toggle('active', mode==='chat');
+}
+
+// ── Paper selection ────────────────────────────────────────────────────────────
+function selectPaper(paper) {
+  selectedPaper = paper;
+  document.querySelectorAll('.paper-item').forEach(el => el.classList.toggle('selected', el.dataset.source===paper.source));
+  document.getElementById('selectedLabel').textContent = `📄 ${paper.title || paper.source}`;
+  ['btn-analyze','btn-chat','btn-contributions','btn-related'].forEach(id => document.getElementById(id).disabled=false);
+  document.getElementById('analyzeContent').innerHTML = '';
+  runFeature('summarize');
+}
+
+// ── Load papers ────────────────────────────────────────────────────────────────
+async function loadPapers() {
+  const res = await fetch(`${API}/api/papers/`);
+  const data = await res.json();
+  const list = document.getElementById('paperList');
+  document.getElementById('libraryCount').textContent = `(${data.papers.length})`;
+  document.getElementById('paperCount').textContent = `${data.papers.length} paper${data.papers.length!==1?'s':''}`;
+  document.getElementById('chunkCount').textContent = `${data.total_chunks} chunks`;
+
+  if (!data.papers.length) {
+    list.innerHTML = '<div style="text-align:center;color:var(--muted);font-size:0.8rem;padding:1rem">No papers yet</div>';
+    return;
+  }
+
+  list.innerHTML = data.papers.map(p => `
+    <div class="paper-item" data-source="${p.source}" onclick='selectPaper(${JSON.stringify(p)})'>
+      <div class="paper-name">${p.title || p.source}</div>
+      <div class="paper-meta">
+        <span class="badge ${p.type}">${p.type}</span>
+        <span>${(p.authors||'').split(',')[0] || ''}</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ── Ingest ─────────────────────────────────────────────────────────────────────
+async function uploadPDF() {
+  const file = document.getElementById('fileInput').files[0];
+  if (!file) return toast('Select a PDF first', 'error');
+  const btn = document.getElementById('uploadBtn');
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>';
+  try {
+    const fd = new FormData(); fd.append('file', file);
+    const res = await fetch(`${API}/api/papers/upload`, {method:'POST', body:fd});
+    if (!res.ok) throw new Error(await res.text());
+    const data = await res.json();
+    toast(`✅ ${data.title} — ${data.chunks_stored} chunks`, 'success');
+    await loadPapers();
+  } catch(e) { toast(e.message, 'error'); }
+  finally { btn.disabled=false; btn.textContent='Upload PDF'; }
+}
+
+async function ingestArxiv() {
+  const val = document.getElementById('arxivInput').value.trim();
+  if (!val) return toast('Enter an ArXiv ID or URL', 'error');
+  try {
+    const res = await fetch(`${API}/api/papers/arxiv`, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url_or_id:val})});
+    if (!res.ok) throw new Error(await res.text());
+    const data = await res.json();
+    toast(`✅ ${data.title}`, 'success');
+    document.getElementById('arxivInput').value = '';
+    await loadPapers();
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+async function ingestDoi() {
+  const val = document.getElementById('doiInput').value.trim();
+  if (!val) return toast('Enter a DOI', 'error');
+  try {
+    const res = await fetch(`${API}/api/papers/doi`, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({doi:val})});
+    if (!res.ok) throw new Error(await res.text());
+    const data = await res.json();
+    toast(`✅ ${data.title}`, 'success');
+    document.getElementById('doiInput').value = '';
+    await loadPapers();
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+async function ingestText() {
+  const title = document.getElementById('textTitle').value.trim();
+  const text = document.getElementById('textBody').value.trim();
+  if (!title || !text) return toast('Title and text are required', 'error');
+  const authors = document.getElementById('textAuthors').value.trim();
+  try {
+    const res = await fetch(`${API}/api/papers/text`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({source:`text:${title.toLowerCase().replace(/\s+/g,'-')}`, title, text, authors})
+    });
+    if (!res.ok) throw new Error(await res.text());
+    toast(`✅ Added: ${title}`, 'success');
+    document.getElementById('textTitle').value='';
+    document.getElementById('textBody').value='';
+    document.getElementById('textAuthors').value='';
+    await loadPapers();
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+// ── AI Features ────────────────────────────────────────────────────────────────
+async function runFeature(feature) {
+  if (!selectedPaper) return toast('Select a paper first', 'error');
+  setMode('analyze');
+
+  const labels = {summarize:'📊 Summary', contributions:'🔬 Contributions & Limitations', related:'🔗 Related Work'};
+  const endpoints = {summarize:'summarize', contributions:'contributions', related:'related'};
+
+  const container = document.getElementById('analyzeContent');
+  const cardId = `card-${feature}`;
+  let card = document.getElementById(cardId);
+
+  if (!card) {
+    card = document.createElement('div');
+    card.className = 'result-card';
+    card.id = cardId;
+    container.appendChild(card);
+  }
+
+  card.innerHTML = `<h3>${labels[feature]}</h3><div class="result-body"><span class="spinner"></span> Analyzing...</div>`;
+  card.scrollIntoView({behavior:'smooth'});
+
+  try {
+    const res = await fetch(`${API}/api/chat/${endpoints[feature]}`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({source: selectedPaper.source})
+    });
+    if (!res.ok) throw new Error(await res.text());
+    const data = await res.json();
+    const text = data.summary || data.analysis || data.related || '';
+    const sources = data.sources || [];
+
+    card.innerHTML = `
+      <h3>${labels[feature]}</h3>
+      <div class="result-body">${formatText(text)}</div>
+      ${sources.length ? `<div class="sources-list">${sources.map(s=>`<span class="source-tag">📄 ${s.title||s.source}</span>`).join('')}</div>` : ''}
+    `;
+  } catch(e) {
+    card.innerHTML = `<h3>${labels[feature]}</h3><div class="result-body" style="color:var(--red)">Error: ${e.message}</div>`;
+  }
+}
+
+function formatText(text) {
+  return text
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\n/g, '<br>');
+}
+
+// ── Chat ───────────────────────────────────────────────────────────────────────
+function handleKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendQuestion(); }
+}
+
+async function sendQuestion() {
+  const input = document.getElementById('chatInput');
+  const q = input.value.trim();
+  if (!q) return;
+  input.value = '';
+
+  const chat = document.getElementById('chatMessages');
+
+  // Remove empty state
+  const empty = chat.querySelector('.empty-state');
+  if (empty) empty.remove();
+
+  // User bubble
+  chat.innerHTML += `
+    <div class="message user">
+      <div class="avatar user">Y</div>
+      <div class="bubble">${q}</div>
+    </div>`;
+
+  // AI bubble
+  const aiId = 'msg-' + Date.now();
+  chat.innerHTML += `
+    <div class="message ai" id="${aiId}">
+      <div class="avatar ai">AI</div>
+      <div class="bubble"><span class="spinner"></span></div>
+    </div>`;
+  chat.scrollTop = chat.scrollHeight;
+
+  try {
+    const res = await fetch(`${API}/api/chat/ask`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({question: q, source: selectedPaper?.source || null, top_k:5})
+    });
+    if (!res.ok) throw new Error(await res.text());
+    const data = await res.json();
+    const bubble = document.getElementById(aiId).querySelector('.bubble');
+    bubble.innerHTML = formatText(data.answer);
+    if (data.sources?.length) {
+      bubble.innerHTML += `<div class="sources-list">${data.sources.map(s=>`<span class="source-tag">📄 ${s.title||s.source}</span>`).join('')}</div>`;
+    }
+  } catch(e) {
+    document.getElementById(aiId).querySelector('.bubble').innerHTML = `<span style="color:var(--red)">Error: ${e.message}</span>`;
+  }
+
+  chat.scrollTop = chat.scrollHeight;
+}
+
+// ── Drag & Drop ────────────────────────────────────────────────────────────────
+const dropZone = document.getElementById('dropZone');
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault(); dropZone.classList.remove('drag-over');
+  const file = e.dataTransfer.files[0];
+  if (file?.name.endsWith('.pdf')) {
+    const dt = new DataTransfer(); dt.items.add(file);
+    document.getElementById('fileInput').files = dt.files;
+    dropZone.querySelector('p').innerHTML = `📄 <strong>${file.name}</strong>`;
+  }
+});
+
+// ── Init ───────────────────────────────────────────────────────────────────────
+loadPapers();
+</script>
+</body>
+</html>

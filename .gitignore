@@ -1,0 +1,38 @@
+# Secrets
+.env
+
+# Vector DB data
+chroma_db/
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.venv/
+venv/
+env/
+dist/
+build/
+*.egg-info/
+
+# Uploads (if any)
+uploads/
+
+# Pytest
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Poetry
+poetry.lock
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.swp

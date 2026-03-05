@@ -1,0 +1,31 @@
+[tool.poetry]
+name = "research-ai"
+version = "0.1.0"
+description = "AI Research Assistant — summarize papers, Q&A, find sources"
+authors = ["YounesBensafia"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+fastapi = "^0.111.0"
+uvicorn = {extras = ["standard"], version = "^0.30.0"}
+python-multipart = "^0.0.9"
+langchain = "^0.2.0"
+langchain-google-genai = "^1.0.0"
+langchain-chroma = "^0.1.0"
+langchain-text-splitters = "^0.2.0"
+chromadb = "^0.5.0"
+google-generativeai = "^0.7.0"
+pydantic-settings = "^2.3.0"
+python-dotenv = "^1.0.0"
+pymupdf = "^1.24.0"
+arxiv = "^2.1.0"
+httpx = "^0.27.0"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.2.0"
+pytest-asyncio = "^0.23.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
