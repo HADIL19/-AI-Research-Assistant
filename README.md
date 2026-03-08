@@ -196,4 +196,3 @@ MIT — free to use and adapt.
 
 ---
 
-<p align="center">Built with ❤️ by <a href="https://github.com/YounesBensafia">YounesBensafia</a></p>
